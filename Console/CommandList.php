@@ -7,6 +7,7 @@ namespace Magento\RemoteManage\Console;
 
 use Magento\Framework\Console\CommandListInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\RemoteManage\Console;
 
 /**
  * Class CommandList
@@ -29,28 +30,24 @@ class CommandList implements CommandListInterface
     }
 
     /**
-     * Gets list of command classes
+     * @inheritdoc
      *
-     * @return string[]
+     * @throws \RuntimeException
      */
-    protected function getCommandsClasses()
-    {
-        return [
-            \Magento\RemoteManage\Console\Command\Command::class
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCommands()
+    public function getCommands(): array
     {
         $commands = [];
-        foreach ($this->getCommandsClasses() as $class) {
+        $list = [
+            Console\Command\Remote::class,
+            Console\Command\Response\ListResponse::class,
+            Console\Command\Response\RunResponse::class
+        ];
+
+        foreach ($list as $class) {
             if (class_exists($class)) {
                 $commands[] = $this->objectManager->get($class);
             } else {
-                throw new \Exception('Class ' . $class . ' does not exist');
+                throw new \RuntimeException('Class ' . $class . ' does not exist');
             }
         }
 

@@ -1,0 +1,56 @@
+Index: nginx.conf.sample
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- nginx.conf.sample	(revision 94383aa66cf8a5499399f6e21300bbf73b3384f2)
++++ nginx.conf.sample	(date 1551120673000)
+@@ -58,6 +58,23 @@
+     }
+ }
+ 
++# PHP entry point for Remote application
++location ~* ^/remote($|/) {
++    root $MAGE_ROOT;
++    location ~ ^/setup/index.php {
++        fastcgi_pass   fastcgi_backend;
++
++        fastcgi_param  PHP_FLAG  "session.auto_start=off \n suhosin.session.cryptua=off";
++        fastcgi_param  PHP_VALUE "memory_limit=756M \n max_execution_time=600";
++        fastcgi_read_timeout 600s;
++        fastcgi_connect_timeout 600s;
++
++        fastcgi_index  index.php;
++        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
++        include        fastcgi_params;
++    }
++}
++
+ # PHP entry point for update application
+ location ~* ^/update($|/) {
+     root $MAGE_ROOT;
+@@ -161,7 +178,7 @@
+ }
+ 
+ # PHP entry point for main application
+-location ~ ^/(index|get|static|errors/report|errors/404|errors/503|health_check)\.php$ {
++location ~ (index|get|static|report|404|503|health_check|remote)\.php$ {
+     try_files $uri =404;
+     fastcgi_pass   fastcgi_backend;
+     fastcgi_buffers 1024 4k;
+Index: lib/internal/Magento/Framework/Console/Cli.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- lib/internal/Magento/Framework/Console/Cli.php	(revision 94383aa66cf8a5499399f6e21300bbf73b3384f2)
++++ lib/internal/Magento/Framework/Console/Cli.php	(date 1551120704000)
+@@ -121,7 +121,7 @@
+      *
+      * @return array a list of available application commands
+      */
+-    protected function getApplicationCommands()
++    public function getApplicationCommands()
+     {
+         $commands = [];
+         try {
