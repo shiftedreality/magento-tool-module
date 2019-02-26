@@ -45,6 +45,10 @@ class Decoder
         $key = $this->deploymentConfig->get('remote/key');
         $payload = $this->request->getParam('token');
 
+        if (!$key) {
+            throw new ValidationException(__('Secure key not provided'));
+        }
+
         if (!$payload) {
             throw new ValidationException(__('Payload not provided'));
         }
