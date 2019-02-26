@@ -1,6 +1,11 @@
 {
     "name": "magento/remote-manage",
-    "description": "Remote Manager",
+    "description": "Remote command execution manager for Magento 2",
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
     "config": {
         "sort-packages": true
     },
@@ -9,11 +14,6 @@
         "magento/framework": "*",
         "firebase/php-jwt": "^5.0"
     },
-    "type": "magento2-module",
-    "license": [
-        "OSL-3.0",
-        "AFL-3.0"
-    ],
     "autoload": {
         "files": [
             "cli_commands.php",
