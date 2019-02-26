@@ -1,3 +1,5 @@
+# NOT FOR PRODUCTION USAGE
+
 # Magento tool integration
 
 This tool provides an API for remote command execution.
