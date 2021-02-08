@@ -6,6 +6,7 @@
 namespace Magento\RemoteManage\Console;
 
 use Magento\Framework\Console\CommandListInterface;
+use Magento\Framework\Exception\ValidatorException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\RemoteManage\Console;
 
@@ -32,7 +33,7 @@ class CommandList implements CommandListInterface
     /**
      * @inheritdoc
      *
-     * @throws \RuntimeException
+     * @throws ValidatorException
      */
     public function getCommands(): array
     {
@@ -47,7 +48,7 @@ class CommandList implements CommandListInterface
             if (class_exists($class)) {
                 $commands[] = $this->objectManager->get($class);
             } else {
-                throw new \RuntimeException('Class ' . $class . ' does not exist');
+                throw new ValidatorException('Class ' . $class . ' does not exist');
             }
         }
 

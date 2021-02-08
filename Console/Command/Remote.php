@@ -5,34 +5,33 @@
  */
 namespace Magento\RemoteManage\Console\Command;
 
-use Magento\Framework\Validation\ValidationException;
-use Magento\RemoteManage\Auth\Decoder;
+use Magento\Framework\Console\Cli;
 use Magento\RemoteManage\Console\Command\Response\ListResponse;
 use Magento\RemoteManage\Console\Command\Response\RunResponse;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Magento\Framework\App\RequestInterface;
 
 /**
  * @inheritdoc
  */
 class Remote extends Command
 {
-    const NAME = 'remote';
-    const TYPE_RUN = 'run';
+    public const NAME = 'remote';
+    public const TYPE_RUN = 'run';
 
     /**
-     * @var object
+     * @var RequestInterface
      */
-    private $payload;
+    private $request;
 
     /**
-     * @param Decoder $decoder
-     * @throws ValidationException
+     * @param RequestInterface $request
      */
-    public function __construct(Decoder $decoder)
+    public function __construct(RequestInterface $request)
     {
-        $this->payload = $decoder->decode();
+        $this->request = $request;
 
         parent::__construct();
     }
@@ -53,12 +52,14 @@ class Remote extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($this->payload->type === self::TYPE_RUN) {
+        if ($this->request->getParam('type') === self::TYPE_RUN) {
             $this->getApplication()->find(RunResponse::NAME)->run($input, $output);
 
-            return;
+            return Cli::RETURN_SUCCESS;
         }
 
         $this->getApplication()->find(ListResponse::NAME)->run($input, $output);
+
+        return Cli::RETURN_SUCCESS;
     }
 }

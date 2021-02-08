@@ -5,33 +5,30 @@
  */
 namespace Magento\RemoteManage\Console\Command\Response;
 
+use Magento\Framework\Console\Cli;
 use Magento\Framework\Validation\ValidationException;
-use Magento\RemoteManage\Auth\Decoder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
+use Magento\Framework\App\RequestInterface;
 
 /**
  * Class Command.
  */
 class RunResponse extends Command
 {
-    const NAME = 'remote:run';
+    public const NAME = 'remote:run';
 
     /**
-     * @var Decoder
+     * @var RequestInterface
      */
-    private $payload;
+    private $request;
 
-    /**
-     * @param Decoder $decoder
-     * @throws ValidationException
-     */
-    public function __construct(Decoder $decoder)
+    public function __construct(RequestInterface $request)
     {
-        $this->payload = $decoder->decode();
+        $this->request = $request;
 
         parent::__construct();
     }
@@ -52,32 +49,36 @@ class RunResponse extends Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|null|void
+     * @return int
      * @throws ValidationException
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->payload->name) {
+        if (!$this->request->getParam('name')) {
             throw new ValidationException(__(
                 'Command name is empty'
             ));
         }
 
-        $name = (string)$this->payload->name;
+        $name = (string)$this->request->getParam('name');
         $arguments = array_filter(
-            (array)$this->payload->arguments
+            (array)$this->request->getParam('arguments')
         );
         $options = array_filter(
-            (array)$this->payload->options
+            (array)$this->request->getParam('options')
         );
 
         $cmdInput = new ArrayInput($arguments);
         $cmdOutput = new StreamOutput(fopen('php://output', 'wb'));
 
-        array_walk($options, function ($value, $key) use ($input) {
+        array_walk($options, static function ($value, $key) use ($input) {
             $input->setOption($key, $value);
         });
 
-        $this->getApplication()->find($name)->run($cmdInput, $cmdOutput);
+        $this->getApplication()
+            ->find($name)
+            ->run($cmdInput, $cmdOutput);
+
+        return Cli::RETURN_SUCCESS;
     }
 }

@@ -6,17 +6,18 @@
 namespace Magento\RemoteManage\Console\Command\Response;
 
 use Magento\Framework\App\Response\HttpFactory;
+use Magento\Framework\Console\Cli;
 use Magento\Framework\Validation\ValidationException;
-use Magento\RemoteManage\Auth\Decoder;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * Class Command.
  */
-class ListResponse extends \Symfony\Component\Console\Command\Command
+class ListResponse extends Command
 {
-    const NAME = 'remote:list';
+    public const NAME = 'remote:list';
 
     /**
      * @var HttpFactory
@@ -24,8 +25,7 @@ class ListResponse extends \Symfony\Component\Console\Command\Command
     private $responseFactory;
 
     /**
-     * @param Decoder $decoder
-     * @throws ValidationException
+     * @param HttpFactory $responseFactory
      */
     public function __construct(HttpFactory $responseFactory)
     {
@@ -50,15 +50,22 @@ class ListResponse extends \Symfony\Component\Console\Command\Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|null|void
+     * @return int
      * @throws ValidationException
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $commands = [];
 
+        $application = $this->getApplication();
+        $reflectionClass = new \ReflectionClass($application);
+        $reflectionMethod = $reflectionClass->getMethod('getApplicationCommands');
+        $reflectionMethod->setAccessible(true);
+
+        $reflectionCommands = $reflectionMethod->invokeArgs($application, []);
+
         /** @var ListResponse $command */
-        foreach ($this->getApplication()->getApplicationCommands() as $command) {
+        foreach ($reflectionCommands as $command) {
             $options = [];
             $arguments = [];
 
@@ -97,5 +104,7 @@ class ListResponse extends \Symfony\Component\Console\Command\Command
             ->sendResponse();
 
         $this->getApplication()->setAutoExit(true);
+
+        return Cli::RETURN_SUCCESS;
     }
 }

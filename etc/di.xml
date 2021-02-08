@@ -9,7 +9,7 @@
     <type name="Magento\Framework\Console\CommandListInterface">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="remoteGenerate" xsi:type="object">Magento\RemoteManage\Console\Command\Generate</item>
+                <item name="remote_run" xsi:type="object">Magento\RemoteManage\Console\Command\Remote</item>
             </argument>
         </arguments>
     </type>
