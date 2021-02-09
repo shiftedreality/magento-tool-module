@@ -25,7 +25,7 @@ with
 4. Enable module
 
 ```
-./bin/magento module:enale --all
+./bin/magento module:enable --all
 ```
 
 ## Authentication
